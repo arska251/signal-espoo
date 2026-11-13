@@ -117,6 +117,11 @@ export default function App() {
     <div className={`app${tourOpen ? ' with-tour' : ''}`}>
       <header className="topbar">
         <button type="button" className="brand" onClick={() => setView('describe')}>
+          <span className="brand-mark" aria-hidden>
+            <span />
+            <span />
+            <span />
+          </span>
           Signal
         </button>
         <span className="brand-sub">Challenge cards for City of Espoo matchmaking events</span>

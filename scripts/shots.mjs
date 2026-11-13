@@ -16,7 +16,10 @@ page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
 const width = Number(process.env.WIDTH ?? 1440)
 await page.setViewport({ width, height: 900, deviceScaleFactor: 1 })
 const tag = width < 800 ? '-mobile' : ''
-const shot = (name, full = false) => page.screenshot({ path: `shots/${name}${tag}.png`, fullPage: full })
+const shot = async (name, full = false) => {
+  await new Promise((r) => setTimeout(r, 400)) // let transitions settle
+  return page.screenshot({ path: `shots/${name}${tag}.png`, fullPage: full })
+}
 const clickText = async (text) => {
   const [el] = await page.$$(`xpath/.//button[contains(., ${JSON.stringify(text)})]`)
   if (!el) throw new Error(`No button with text: ${text}`)
@@ -28,6 +31,7 @@ const tourLog = []
 const tour = async (label) => tourLog.push(`${label}: ${await page.$eval('.tour', (el) => el.innerText.split('\n').slice(0, 2).join(' | ')).catch(() => '(no tour)')}`)
 
 await page.goto(url, { waitUntil: 'networkidle0' })
+await new Promise((r) => setTimeout(r, 1800)) // let the room light up
 await tour('load')
 await shot('0-tour-intro')
 await clickText('Start the tour')

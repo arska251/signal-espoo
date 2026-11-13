@@ -1,3 +1,4 @@
+import type React from 'react'
 import { skillLabel } from '../data/skills'
 import type { Status } from '../engine/match'
 import type { RequirementKey } from '../engine/types'
@@ -51,7 +52,7 @@ export function Room({ statuses, preview, blockers, idle }: Props) {
         </div>
         <div className="dots" aria-hidden>
           {statuses.map((_, i) => (
-            <span key={i} className="dot" />
+            <span key={i} className="dot" style={{ '--d': `${(i * 73) % 900}ms` } as React.CSSProperties} />
           ))}
         </div>
       </section>
@@ -76,7 +77,13 @@ export function Room({ statuses, preview, blockers, idle }: Props) {
         {statuses.map((s, i) => {
           const next = preview?.[i]
           const changing = next && next !== s
-          return <span key={i} className={`dot dot-${changing ? next : s}${changing ? ' dot-changing' : ''}`} />
+          return (
+            <span
+              key={i}
+              className={`dot dot-${changing ? next : s}${changing ? ' dot-changing' : ''}`}
+              style={{ '--d': `${(i * 73) % 900}ms` } as React.CSSProperties}
+            />
+          )
         })}
       </div>
       <ul className="legend">

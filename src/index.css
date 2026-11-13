@@ -1,25 +1,33 @@
 :root {
-  --paper: #f2f5f3;
+  /* Polar-night palette: a light, quiet interface around one dark "room" where fitting people light up. */
+  --paper: #f3f4f8;
   --surface: #ffffff;
-  --ink: #17202a;
-  --ink-2: #4a5663;
-  --line: #d7deda;
-  --lake: #1e5fc9;
-  --lake-dark: #154a9e;
-  --ice: #9dc1f0;
-  --amber: #de9b1b;
-  --amber-ink: #7d5200;
-  --amber-wash: #fbf1dc;
-  --mist: #d3dad5;
-  --radius-s: 6px;
-  --radius-l: 14px;
+  --ink: #0d1020;
+  --ink-2: #5a6075;
+  --line: #e1e3ec;
+  --lake: #3346ff;
+  --lake-dark: #1f2bb8;
+  --ice: #8c9bff;
+  --amber: #ffb23e;
+  --amber-ink: #8a5200;
+  --amber-wash: #fff4e0;
+  --mist: #dfe2ec;
+  --night: #0b1028;
+  --night-2: #161d45;
+  --night-dot: #262e5c;
+  --aurora: #5cf2c8;
+  --aurora-close: #9aa6ff;
+  --radius-s: 10px;
+  --radius-l: 22px;
+  --display: 'Bricolage Grotesque Variable', 'Geist Variable', system-ui, sans-serif;
 
-  font-family: 'Schibsted Grotesk Variable', system-ui, sans-serif;
+  font-family: 'Geist Variable', system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   color: var(--ink);
   background: var(--paper);
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'ss01', 'cv11';
 }
 
 * {
@@ -1238,4 +1246,534 @@ th {
   border-radius: var(--radius-s);
   padding: 8px 12px;
   max-width: 80ch;
+}
+
+/* ==========================================================================
+   Theme: polar night. Everything above sets structure; this layer sets the look.
+   ========================================================================== */
+
+h1,
+h2,
+.brand,
+.room-reach,
+.card-title,
+.preview-card h2,
+.fit h2,
+.slot,
+.change-num {
+  font-family: var(--display);
+  font-optical-sizing: auto;
+}
+h1 {
+  font-size: clamp(40px, 5.4vw, 72px);
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+  font-weight: 760;
+  max-width: 14ch;
+}
+.organiser h1,
+.participant h1,
+.published h1 {
+  max-width: 18ch;
+}
+h2 {
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+.lede {
+  font-size: 19px;
+  line-height: 1.5;
+  margin-top: 20px;
+}
+
+/* Top bar: floating, frosted */
+.topbar {
+  position: sticky;
+  top: 12px;
+  z-index: 4;
+  margin: 12px auto 0;
+  width: min(1240px, calc(100% - 24px));
+  border: 1px solid rgba(225, 227, 236, 0.9);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: saturate(1.6) blur(14px);
+  -webkit-backdrop-filter: saturate(1.6) blur(14px);
+  padding: 8px 8px 8px 20px;
+  align-items: center;
+  box-shadow: 0 1px 0 rgba(13, 16, 32, 0.03), 0 8px 24px rgba(13, 16, 32, 0.05);
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+.brand-mark {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 6px);
+  gap: 3px;
+  align-items: end;
+  height: 18px;
+}
+.brand-mark span {
+  display: block;
+  width: 6px;
+  border-radius: 3px;
+  background: var(--lake);
+}
+.brand-mark span:nth-child(1) {
+  height: 7px;
+  opacity: 0.45;
+}
+.brand-mark span:nth-child(2) {
+  height: 12px;
+  opacity: 0.7;
+}
+.brand-mark span:nth-child(3) {
+  height: 18px;
+}
+.brand-sub {
+  font-size: 13px;
+}
+.topbar nav {
+  background: var(--paper);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+}
+.topbar nav button {
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 14px;
+  font-weight: 550;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.topbar nav button:hover {
+  color: var(--ink);
+}
+.topbar nav button.on {
+  background: var(--ink);
+  color: #fff;
+}
+main {
+  padding-top: 56px;
+}
+
+/* Event line becomes a live pill */
+.event-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 14px 5px 10px;
+  margin-bottom: 20px;
+}
+.event-line::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--aurora);
+  box-shadow: 0 0 0 3px rgba(92, 242, 200, 0.25);
+}
+
+/* Controls */
+.primary,
+.secondary {
+  border-radius: 999px;
+  padding: 13px 24px;
+  font-weight: 600;
+  transition: background-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+.primary {
+  background: var(--lake);
+  box-shadow: 0 6px 18px rgba(51, 70, 255, 0.28);
+}
+.primary:hover:not(:disabled) {
+  background: var(--lake-dark);
+  transform: translateY(-1px);
+}
+.primary:disabled {
+  background: var(--ink-2);
+  box-shadow: none;
+}
+.secondary {
+  background: var(--surface);
+}
+.secondary:hover {
+  border-color: var(--ink);
+}
+.primary.small {
+  box-shadow: none;
+  padding: 9px 16px;
+}
+.chip {
+  padding: 6px 14px;
+  font-weight: 500;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.chip:hover {
+  border-color: var(--lake);
+  color: var(--lake-dark);
+}
+.chip-on,
+.chip-on:hover {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+input,
+textarea,
+select {
+  border-radius: 12px;
+  padding: 12px 14px;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  box-shadow: 0 0 0 4px rgba(51, 70, 255, 0.14);
+}
+.field-label {
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+.dictate {
+  font-weight: 500;
+}
+.seg {
+  border-radius: 999px;
+  padding: 3px;
+  background: var(--paper);
+  border: 0;
+  gap: 2px;
+}
+.seg button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  padding: 6px 13px;
+}
+.seg button.on {
+  background: var(--ink);
+}
+
+/* Surfaces */
+.card-sheet,
+.preview-card,
+.fit,
+.answer,
+.change,
+.waiting,
+table {
+  border-color: var(--line);
+  box-shadow: 0 1px 2px rgba(13, 16, 32, 0.04);
+}
+.card-sheet {
+  padding: 36px;
+}
+.card-title {
+  font-size: 34px;
+  font-weight: 760;
+  letter-spacing: -0.035em;
+}
+.skills-must .skill {
+  background: var(--lake);
+  border-radius: 999px;
+}
+.skills-nice .skill {
+  background: #e8eaff;
+  color: var(--lake-dark);
+  border-radius: 999px;
+}
+.skill-move {
+  padding-left: 13px;
+}
+.mini-skills li {
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+.mini-skills .near {
+  background: #e8eaff;
+}
+
+/* The room: a night sky where people who fit light up */
+.room {
+  background: radial-gradient(120% 90% at 85% 0%, var(--night-2) 0%, var(--night) 60%);
+  color: #fff;
+  border-radius: var(--radius-l);
+  padding: 26px 26px 22px;
+  box-shadow: 0 24px 48px rgba(11, 16, 40, 0.22);
+}
+.room-reach {
+  font-size: 96px;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.82;
+}
+.room-idle .room-reach {
+  color: #fff;
+}
+.reach-preview {
+  color: var(--aurora);
+}
+.room-caption {
+  color: #b9bfdc;
+}
+.dots {
+  gap: 6px;
+  margin-top: 24px;
+}
+.room .dot,
+.room-idle .dot {
+  background: var(--night-dot);
+}
+.room .dot-strong {
+  background: var(--aurora);
+  box-shadow: 0 0 10px rgba(92, 242, 200, 0.75);
+}
+.room .dot-close {
+  background: var(--aurora-close);
+  box-shadow: 0 0 8px rgba(154, 166, 255, 0.55);
+}
+.room .dot-blocked {
+  background: var(--amber);
+  box-shadow: 0 0 8px rgba(255, 178, 62, 0.6);
+}
+.room .dot-changing {
+  box-shadow: 0 0 0 2px var(--night), 0 0 0 3.5px #fff, 0 0 14px rgba(255, 255, 255, 0.6);
+}
+.legend {
+  color: #d5d9ee;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 14px;
+  margin-top: 20px;
+}
+.legend-count {
+  color: #fff;
+}
+.blockers {
+  color: #ffd08a;
+}
+.blockers strong {
+  color: #fff;
+}
+/* One orchestrated moment: the room lights up once when it first appears. */
+@media (prefers-reduced-motion: no-preference) {
+  .dots .dot {
+    animation: dot-in 700ms ease-out both;
+    animation-delay: var(--d, 0ms);
+  }
+}
+@keyframes dot-in {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Requirement check */
+.check h2 {
+  font-size: 24px;
+}
+.flag {
+  border-left: 0;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid #f6dcae;
+  box-shadow: inset 4px 0 0 var(--amber);
+  padding: 16px 18px 16px 22px;
+}
+.gain {
+  background: var(--amber-wash);
+  color: var(--amber-ink);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 14px;
+}
+.gain-zero {
+  background: transparent;
+  padding: 0;
+}
+.relax {
+  border-radius: 999px;
+  border-color: var(--ink);
+  padding: 7px 14px;
+}
+.relax:hover,
+.relax:focus-visible {
+  background: var(--lake);
+  border-color: var(--lake);
+}
+
+/* Organiser */
+.change-num {
+  font-size: 44px;
+  font-weight: 780;
+  letter-spacing: -0.045em;
+}
+.change-num strong {
+  color: var(--lake);
+}
+.bar {
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--lake), var(--ice));
+}
+table {
+  border-radius: var(--radius-l);
+}
+th {
+  font-weight: 550;
+}
+
+/* Inbox and meetings */
+.answer-meet {
+  border-color: var(--lake);
+  box-shadow: inset 4px 0 0 var(--lake), 0 10px 24px rgba(51, 70, 255, 0.12);
+}
+.time-jump {
+  background: var(--night);
+  color: var(--aurora);
+}
+.slot {
+  font-size: 26px;
+  letter-spacing: -0.03em;
+  color: var(--lake);
+}
+.intl-note {
+  background: #e8eaff;
+  border-radius: 12px;
+}
+
+/* Signal check */
+.signal-check {
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fbfbff, var(--surface));
+}
+.sc-ok {
+  color: #0f8a68;
+}
+
+/* Tour: a night-blue pill, same family as the room */
+.tour {
+  background: radial-gradient(140% 120% at 0% 0%, var(--night-2), var(--night));
+  border: 1px solid rgba(154, 166, 255, 0.25);
+  border-radius: 20px;
+  box-shadow: 0 18px 48px rgba(11, 16, 40, 0.35);
+}
+.tour-count {
+  color: var(--aurora);
+}
+.tour-next {
+  border-radius: 999px;
+  padding: 9px 18px;
+}
+
+@media (max-width: 900px) {
+  .topbar {
+    border-radius: 22px;
+    top: 8px;
+  }
+  .room-reach {
+    font-size: 72px;
+  }
+  .card-sheet {
+    padding: 22px;
+  }
+}
+
+/* Review: the room stays in view while the requirement check scrolls under it, so hover previews are always visible. */
+.side-col {
+  top: 92px;
+  max-height: calc(100vh - 108px);
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  gap: 20px;
+}
+.with-tour .side-col {
+  max-height: calc(100vh - 250px);
+}
+.side-col .room {
+  flex: none;
+  padding: 20px 22px 18px;
+}
+.side-col .room-reach {
+  font-size: 76px;
+}
+.side-col .dots {
+  grid-template-columns: repeat(24, 1fr);
+  gap: 4px;
+  margin-top: 16px;
+}
+.side-col .legend {
+  margin-top: 14px;
+  padding-top: 10px;
+  gap: 2px;
+}
+.side-col .check {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 2px 4px 12px 2px;
+}
+.describe-side {
+  top: 108px;
+}
+@media (max-width: 900px) {
+  .side-col,
+  .with-tour .side-col {
+    max-height: none;
+    overflow: visible;
+  }
+  .side-col .check {
+    overflow: visible;
+  }
+}
+/* Before a card exists the room is a quiet starfield. */
+.room-idle .dot:nth-child(7n + 3) {
+  background: #36407a;
+}
+.room-idle .dot:nth-child(11n + 5) {
+  background: #4a559c;
+}
+.room-idle .dot:nth-child(23n + 9) {
+  background: #6a76c4;
+}
+@media (max-width: 700px) {
+  .topbar nav button {
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+  .topbar nav {
+    justify-content: space-between;
+  }
+}
+@media (max-width: 700px) {
+  .topbar nav button {
+    padding: 6px 8px;
+    font-size: 12.5px;
+    flex: 1;
+  }
+  .event-line {
+    border-radius: 14px;
+    align-items: flex-start;
+  }
+  .event-line::before {
+    margin-top: 5px;
+    flex: none;
+  }
 }
