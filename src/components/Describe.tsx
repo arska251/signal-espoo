@@ -6,6 +6,7 @@ import type { CompanyAnswers } from '../engine/types'
 import { Room } from './Room'
 import { SignalCheck } from './SignalCheck'
 import { outcomeChecks } from '../engine/signalCheck'
+import { getLang, t } from '../i18n'
 
 interface Props {
   answers: CompanyAnswers
@@ -15,10 +16,31 @@ interface Props {
   ai: boolean
 }
 
-const QUESTIONS: { key: keyof CompanyAnswers; label: string; hint: string; rows: number }[] = [
-  { key: 'outcomes', label: 'What should the new person have done after three months?', hint: 'Results, not duties. "Moved our warehouse system to the cloud" says more than "responsible for backend".', rows: 4 },
-  { key: 'hard', label: 'What makes this hard, and what do they need for it?', hint: 'Mention every requirement you have in mind: languages, degree, experience, location. You can change them later.', rows: 4 },
-  { key: 'setup', label: 'Who will they work with, and how?', hint: 'Team, tools, on-site or remote.', rows: 2 },
+const questions = (): { key: keyof CompanyAnswers; label: string; hint: string; rows: number }[] => [
+  {
+    key: 'outcomes',
+    label: t('What should the new person have done after three months?', 'Mitä uuden ihmisen pitäisi olla saanut aikaan kolmessa kuukaudessa?'),
+    hint: t(
+      'Results, not duties. "Moved our warehouse system to the cloud" says more than "responsible for backend".',
+      'Tuloksia, ei tehtäviä. "Siirsi varastojärjestelmän pilveen" kertoo enemmän kuin "vastaa backendistä".',
+    ),
+    rows: 4,
+  },
+  {
+    key: 'hard',
+    label: t('What makes this hard, and what do they need for it?', 'Mikä tässä on vaikeaa, ja mitä siihen tarvitaan?'),
+    hint: t(
+      'Mention every requirement you have in mind: languages, degree, experience, location. You can change them later.',
+      'Mainitse kaikki vaatimukset, joita mietit: kielet, tutkinto, kokemus, sijainti. Voit muuttaa niitä myöhemmin.',
+    ),
+    rows: 4,
+  },
+  {
+    key: 'setup',
+    label: t('Who will they work with, and how?', 'Kenen kanssa ja miten hän työskentelee?'),
+    hint: t('Team, tools, on-site or remote.', 'Tiimi, työkalut, paikan päällä vai etänä.'),
+    rows: 2,
+  },
 ]
 
 // Minimal typing for the Web Speech API, which TypeScript's DOM lib does not include.
@@ -45,7 +67,7 @@ function Dictate({ onText }: { onText: (t: string) => void }) {
       return
     }
     const r = new SpeechRecognition()
-    r.lang = navigator.language.startsWith('fi') ? 'fi-FI' : 'en-GB'
+    r.lang = getLang() === 'fi' ? 'fi-FI' : 'en-GB'
     r.continuous = true
     r.interimResults = false
     r.onresult = (e) => {
@@ -59,7 +81,7 @@ function Dictate({ onText }: { onText: (t: string) => void }) {
   }
   return (
     <button type="button" className={`dictate${on ? ' dictate-on' : ''}`} onClick={toggle} aria-pressed={on}>
-      {on ? 'Stop dictating' : 'Dictate'}
+      {on ? t('Stop dictating', 'Lopeta sanelu') : t('Dictate', 'Sanele')}
     </button>
   )
 }
@@ -73,18 +95,20 @@ export function Describe({ answers, onChange, onSubmit, busy, ai }: Props) {
       <div className="describe-main">
       <header className="describe-head">
         <p className="event-line">
-          {EVENT.name}, {EVENT.date}. {EVENT.daysLeft} days to go.
+          {EVENT.name}, {EVENT.date}. {t(`${EVENT.daysLeft} days to go.`, `${EVENT.daysLeft} päivää jäljellä.`)}
         </p>
-        <h1>Describe the work, not the job ad.</h1>
+        <h1>{t('Describe the work, not the job ad.', 'Kuvaa työ, älä työpaikkailmoitusta.')}</h1>
         <p className="lede">
-          Three questions, about five minutes. You get a challenge card that participants see three weeks before the
-          event, and you see right away how many of them fit it.
+          {t(
+            'Three questions, about five minutes. You get a challenge card that participants see three weeks before the event, and you see right away how many of them fit it.',
+            'Kolme kysymystä, noin viisi minuuttia. Saat haastekortin, jonka osallistujat näkevät kolme viikkoa ennen tapahtumaa, ja näet heti, moniko heistä sopii siihen.',
+          )}
         </p>
         <div className="examples">
-          <span>Try an example:</span>
+          <span>{t('Try an example:', 'Kokeile esimerkkiä:')}</span>
           {SCENARIOS.map((s) => (
             <button key={s.id} type="button" className="chip" onClick={() => onChange(s.answers)}>
-              {s.label}
+              {t(s.label, s.labelFi)}
             </button>
           ))}
         </div>
@@ -99,15 +123,15 @@ export function Describe({ answers, onChange, onSubmit, busy, ai }: Props) {
       >
         <div className="row-2">
           <label className="field">
-            <span className="field-label">Company</span>
-            <input value={answers.company} onChange={(e) => set('company', e.target.value)} placeholder="Company name" />
+            <span className="field-label">{t('Company', 'Yritys')}</span>
+            <input value={answers.company} onChange={(e) => set('company', e.target.value)} placeholder={t('Company name', 'Yrityksen nimi')} />
           </label>
           <label className="field">
-            <span className="field-label">What do you call the role today?</span>
-            <input value={answers.role} onChange={(e) => set('role', e.target.value)} placeholder="For example: Senior developer" />
+            <span className="field-label">{t('What do you call the role today?', 'Mikä roolin nimi on nyt?')}</span>
+            <input value={answers.role} onChange={(e) => set('role', e.target.value)} placeholder={t('For example: Senior developer', 'Esimerkiksi: Senior-kehittäjä')} />
           </label>
         </div>
-        {QUESTIONS.map((q) => (
+        {questions().map((q) => (
           <div className="field" key={q.key}>
             <div className="field-top">
               <label className="field-label" htmlFor={q.key}>
@@ -122,12 +146,22 @@ export function Describe({ answers, onChange, onSubmit, busy, ai }: Props) {
         ))}
         <div className="submit-row">
           <button className="primary" type="submit" disabled={!ready || busy}>
-            {busy ? (ai ? 'Claude is drafting your card, about 10 seconds…' : 'Drafting your card…') : 'Draft my challenge card'}
+            {busy
+              ? ai
+                ? t('Claude is drafting your card, about 10 seconds…', 'Claude laatii korttiasi, noin 10 sekuntia…')
+                : t('Drafting your card…', 'Laaditaan korttia…')
+              : t('Draft my challenge card', 'Laadi haastekortti')}
           </button>
           <p className="hint">
             {ai
-              ? 'Claude drafts the card from your words only. You review every line before anything is shared.'
-              : 'Offline mode: the card is drafted with keyword rules. You review every line before anything is shared.'}
+              ? t(
+                  'Claude drafts the card from your words only. You review every line before anything is shared.',
+                  'Claude laatii kortin vain sinun sanoistasi. Tarkistat jokaisen rivin ennen kuin mitään jaetaan.',
+                )
+              : t(
+                  'Offline mode: the card is drafted with keyword rules. You review every line before anything is shared.',
+                  'Offline-tila: kortti laaditaan avainsanasäännöillä. Tarkistat jokaisen rivin ennen kuin mitään jaetaan.',
+                )}
           </p>
         </div>
       </form>

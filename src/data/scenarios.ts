@@ -4,6 +4,7 @@ import type { CompanyAnswers } from '../engine/types'
 export interface Scenario {
   id: string
   label: string
+  labelFi: string
   answers: CompanyAnswers
 }
 
@@ -11,6 +12,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'logistics',
     label: 'Logistics software company',
+    labelFi: 'Logistiikkaohjelmistoyritys',
     answers: {
       company: 'Kuljetus Oy (fictional)',
       role: 'Senior Full-Stack Developer',
@@ -25,6 +27,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'equity',
     label: 'Equity research company',
+    labelFi: 'Osaketutkimusyritys',
     answers: {
       company: 'Arvo Research (fictional)',
       role: 'Developer, automated equity research',
@@ -38,6 +41,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'care',
     label: 'Care home group',
+    labelFi: 'Hoivakoti',
     answers: {
       company: 'Hoivakoti Kaislikko (fictional)',
       role: 'Registered nurse',
@@ -51,6 +55,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'game',
     label: 'Game studio',
+    labelFi: 'Pelistudio',
     answers: {
       company: 'Pixel Fjord Games (fictional)',
       role: 'Backend developer for online games',
@@ -59,6 +64,20 @@ export const SCENARIOS: Scenario[] = [
       hard:
         'Our backend runs on Kubernetes and we have never had more than 5000 players online at once. We need backend and cloud experience. Bachelor\'s degree in computer science required.',
       setup: 'English-speaking team of 25, hybrid in Otaniemi. Experience from games is a plus. Python or C# is nice to have.',
+    },
+  },
+  {
+    id: 'robotics',
+    label: 'Robotics company, in Finnish',
+    labelFi: 'Robotiikkayritys (suomeksi)',
+    answers: {
+      company: 'Otaniemi Robotics (fictional)',
+      role: 'Ohjelmistokehittäjä',
+      outcomes:
+        'Kolmen kuukauden päästä hän on automatisoinut robottien testauksen niin, että julkaisu ei enää vie kahta päivää. Hän on korjannut sulautetun ohjelmiston muistivuodot.',
+      hard:
+        'Laitteemme ovat vaikeita testata, ja vanha koodi on C++:aa. Tarvitsemme C++- ja testausosaamista. Diplomi-insinöörin tutkinto ja sujuva suomi vaaditaan.',
+      setup: 'Kuuden hengen tiimi Otaniemessä, työ paikan päällä laboratoriossa. Python on plussaa.',
     },
   },
 ]

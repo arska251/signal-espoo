@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { getLang, setLang, t, type Lang } from './i18n'
 import { About } from './components/About'
 import { Describe } from './components/Describe'
 import { Inbox } from './components/Inbox'
@@ -18,12 +19,12 @@ import type { ChallengeCard, CompanyAnswers, RequirementKey } from './engine/typ
 type View = 'describe' | 'review' | 'published' | 'participant' | 'organiser'
 
 const EMPTY: CompanyAnswers = { company: '', role: '', outcomes: '', hard: '', setup: '' }
-const STORE = 'signal.cards.v1'
+const STORE = 'signal.cards.v2'
 
 // Two cards already published by other companies, so the organiser view is not empty.
 const SEED: PublishedCard[] = SCENARIOS.filter((s) => s.id === 'care' || s.id === 'game').map((s, i) => ({
   card: extractLocal(s.answers).card,
-  publishedAt: i === 0 ? '24 days before' : '19 days before',
+  publishedAt: i === 0 ? 24 : 19,
 }))
 // The game studio accepted the check's degree suggestion before publishing.
 SEED[1] = { ...SEED[1], original: SEED[1].card, card: { ...SEED[1].card, requirements: { ...SEED[1].card.requirements, degree: 'none' } } }
@@ -38,6 +39,11 @@ function loadCards(): PublishedCard[] {
 
 export default function App() {
   const [view, setView] = useState<View>('describe')
+  const [lang, setLangState] = useState<Lang>(getLang())
+  const switchLang = (l: Lang) => {
+    setLang(l)
+    setLangState(l)
+  }
   const [answers, setAnswers] = useState<CompanyAnswers>(EMPTY)
   const [draft, setDraft] = useState<Draft | null>(null)
   const [justified, setJustified] = useState<RequirementKey[]>([])
@@ -104,7 +110,7 @@ export default function App() {
 
   const publish = () => {
     if (!draft) return
-    const entry: PublishedCard = { card: draft.card, publishedAt: '21 days before', original: original ?? draft.card }
+    const entry: PublishedCard = { card: draft.card, publishedAt: 21, original: original ?? draft.card }
     // Publishing the same company and role again replaces the earlier card.
     const own = [...cards.filter((c) => !SEED.includes(c) && cardKey(c.card) !== cardKey(draft.card)), entry]
     localStorage.setItem(STORE, JSON.stringify(own))
@@ -124,29 +130,38 @@ export default function App() {
           </span>
           Signal
         </button>
-        <span className="brand-sub">Challenge cards for City of Espoo matchmaking events</span>
+        <span className="brand-sub">{t('Challenge cards for City of Espoo matchmaking events', 'Haastekortit Espoon kaupungin matchmaking-tapahtumiin')}</span>
         <nav>
           <button type="button" className={['describe', 'review', 'published'].includes(view) ? 'on' : ''} onClick={() => setView(published ? 'published' : draft ? 'review' : 'describe')}>
-            Company
+            {t('Company', 'Yritys')}
           </button>
           <button type="button" className={view === 'participant' ? 'on' : ''} onClick={() => setView('participant')}>
-            Participant
+            {t('Participant', 'Osallistuja')}
           </button>
           <button type="button" className={view === 'organiser' ? 'on' : ''} onClick={() => setView('organiser')}>
-            Organiser
+            {t('Organiser', 'Järjestäjä')}
           </button>
           <button type="button" onClick={() => setAbout(true)}>
-            Data and AI
+            {t('Data and AI', 'Data ja tekoäly')}
           </button>
           {!tourOpen && (
             <button type="button" onClick={() => setTourOpen(true)}>
-              Tour
+              {t('Tour', 'Kierros')}
             </button>
           )}
+          <button
+            type="button"
+            className="lang"
+            onClick={() => switchLang(lang === 'en' ? 'fi' : 'en')}
+            aria-label={lang === 'en' ? 'Suomeksi' : 'In English'}
+            lang={lang === 'en' ? 'fi' : 'en'}
+          >
+            {lang === 'en' ? 'FI' : 'EN'}
+          </button>
         </nav>
       </header>
 
-      <main>
+      <main key={lang}>
         {view === 'describe' && <Describe answers={answers} onChange={setAnswers} onSubmit={submit} busy={busy} ai={ai} />}
         {view === 'review' && draft && (
           <Review
@@ -187,7 +202,7 @@ export default function App() {
         {view === 'organiser' && <Organiser cards={cards} interestsFor={interestsFor} decisions={decisions} />}
       </main>
 
-      <footer className="foot">Prototype for Junction 2026. All participant data is synthetic.</footer>
+      <footer className="foot">{t('Prototype for Junction 2026. All participant data is synthetic.', 'Prototyyppi Junction 2026 -tapahtumaan. Kaikki osallistujadata on synteettistä.')}</footer>
       {tourOpen && <Tour step={tourStep} onStep={onTourStep} onClose={() => setTourOpen(false)} state={tourState} />}
       {about && <About onClose={() => setAbout(false)} />}
     </div>

@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 // A small skills taxonomy modelled on ESCO (European Skills, Competences, Qualifications and Occupations).
 // Labels follow ESCO style; a production version would use ESCO URIs from the ESCO API.
 // `related` lists skills that transfer well: a candidate with a related skill counts as a close match.
@@ -92,6 +93,73 @@ export const SKILLS: Skill[] = [
 
 export const SKILL_BY_ID: Record<string, Skill> = Object.fromEntries(SKILLS.map((s) => [s.id, s]))
 
-export function skillLabel(id: string): string {
-  return SKILL_BY_ID[id]?.label ?? id
+const FI_LABEL: Record<string, string> = {
+  'js': 'JavaScript',
+  'ts': 'TypeScript',
+  'frontend': 'käyttöliittymien kehittäminen (frontend)',
+  'backend': 'palvelinohjelmistojen kehittäminen (backend)',
+  'python': 'Python',
+  'java': 'Java',
+  'csharp': 'C#',
+  'cpp': 'C++',
+  'api': 'ohjelmointirajapintojen suunnittelu',
+  'testing': 'ohjelmistotestaus',
+  'legacy': 'vanhojen järjestelmien siirtäminen',
+  'embedded': 'sulautettujen järjestelmien kehittäminen',
+  'games': 'pelinkehitys',
+  'sql': 'SQL',
+  'database': 'tietokantojen hallinta',
+  'data-analysis': 'data-analyysi',
+  'bi': 'liiketoimintaraportointi',
+  'ml': 'koneoppimisen soveltaminen',
+  'cloud': 'pilvi-infrastruktuurin hallinta',
+  'devops': 'DevOps-käytännöt',
+  'linux': 'Linux-ylläpito',
+  'security': 'tietoturva',
+  'wms': 'varastonhallintajärjestelmät',
+  'supply-chain': 'toimitusketjun hallinta',
+  'procurement': 'hankinnat',
+  'erp': 'toiminnanohjausjärjestelmät (ERP)',
+  'lean': 'lean-prosessikehitys',
+  'nursing': 'sairaanhoito',
+  'elderly-care': 'ikääntyneiden hoito',
+  'medication': 'lääkehoito',
+  'patient-safety': 'potilasturvallisuus',
+  'customer-service': 'asiakaspalvelu',
+  'customer-success': 'asiakkuuksien hoito',
+  'sales': 'myynti',
+  'marketing': 'markkinointikampanjat',
+  'content': 'digitaalisen sisällön tuottaminen',
+  'pm': 'projektinhallinta',
+  'agile': 'ketterät menetelmät',
+  'stakeholders': 'sidosryhmäyhteistyö',
+  'accounting': 'kirjanpito',
+  'excel': 'taulukkolaskenta',
+  'training': 'koulutus ja perehdytys',
+  'ux': 'käyttökokemuksen suunnittelu',
+  'graphic': 'graafinen suunnittelu',
+  'cad': 'CAD-ohjelmistot',
+  'mech': 'mekaniikkasuunnittelu',
+  'automation': 'teollisuusautomaation ohjelmointi',
+  'electrical': 'sähkösuunnittelu',
 }
+
+const FI_GROUP: Record<SkillGroup, string> = {
+  'Software': 'Ohjelmistot',
+  'Data': 'Data',
+  'Cloud and infrastructure': 'Pilvi ja infrastruktuuri',
+  'Logistics and operations': 'Logistiikka ja operaatiot',
+  'Health and care': 'Terveys ja hoiva',
+  'Customer and sales': 'Asiakkuudet ja myynti',
+  'Business and project': 'Liiketoiminta ja projektit',
+  'Design': 'Muotoilu',
+  'Engineering': 'Tekniikka',
+}
+
+export function skillLabel(id: string): string {
+  const skill = SKILL_BY_ID[id]
+  if (!skill) return id
+  return t(skill.label, FI_LABEL[id] ?? skill.label)
+}
+
+export const groupLabel = (g: SkillGroup): string => t(g, FI_GROUP[g])

@@ -4,7 +4,8 @@ import { ANSWERS, GENERIC } from '../data/answers'
 import { POOL } from '../data/pool'
 import { SKILL_BY_ID, skillLabel } from '../data/skills'
 import { evaluate } from './match'
-import type { ChallengeCard, Participant } from './types'
+import { levelLabel, type ChallengeCard, type Participant } from './types'
+import { t } from '../i18n'
 
 export interface Interest {
   id: string
@@ -15,7 +16,8 @@ export interface Interest {
   participant: Participant
   /** Set when the interest came from one of the example personas. */
   personaId?: string
-  arrived: string
+  /** Days before the event when the interest arrived; 0 is just now. */
+  arrived: number
 }
 
 export type Decision = 'meet' | 'pass'
@@ -41,7 +43,7 @@ export function seededInterests(card: ChallengeCard, count = 4): Interest[] {
       outcome: outcomes[i % Math.max(1, outcomes.length)] ?? '',
       text: bank[(p.id + i) % bank.length],
       participant: p,
-      arrived: `${18 - i * 3} days before`,
+      arrived: 18 - i * 3,
     }
   })
 }
@@ -53,12 +55,10 @@ export function matchedSkills(p: Participant, card: ChallengeCard) {
       if (p.skills.includes(s)) return { id: s, label: skillLabel(s), exact: true }
       // Near matches only count for must-haves; for nice-to-haves they are noise.
       const r = card.must.includes(s) ? SKILL_BY_ID[s]?.related.find((x) => p.skills.includes(x)) : undefined
-      return r ? { id: s, label: `${skillLabel(r)} (close to ${skillLabel(s)})`, exact: false } : null
+      return r ? { id: s, label: t(`${skillLabel(r)} (close to ${skillLabel(s)})`, `${skillLabel(r)} (lähellä: ${skillLabel(s)})`), exact: false } : null
     })
     .filter((x): x is { id: string; label: string; exact: boolean } => x !== null)
 }
-
-const LEVEL = ['none', 'basic', 'working', 'fluent']
 
 /** Three questions for each side, so the 15 minutes go to substance. Built from the card and the answer. */
 export function conversationBrief(card: ChallengeCard, i: Interest) {
@@ -66,18 +66,27 @@ export function conversationBrief(card: ChallengeCard, i: Interest) {
   const missing = [...card.must, ...card.nice].find((s) => !p.skills.includes(s))
   const outcome = i.outcome.replace(/[.!]+$/, '')
   const company = [
-    `Ask them to walk you through what they wrote: what went wrong along the way, and what they would do differently.`,
-    `Describe how you would start on “${outcome}” and ask where they would begin.`,
+    t(
+      'Ask them to walk you through what they wrote: what went wrong along the way, and what they would do differently.',
+      'Pyydä kertomaan, mitä hän kirjoitti: mikä meni matkalla pieleen ja mitä hän tekisi toisin.',
+    ),
+    t(`Describe how you would start on “${outcome}” and ask where they would begin.`, `Kerro, miten itse aloittaisit tavoitteen “${outcome}”, ja kysy, mistä hän aloittaisi.`),
     missing
-      ? `“${skillLabel(missing)}” is new for them. Ask how they would get up to speed, and how they learned the last new thing they picked up.`
-      : `Ask what they need from your team in the first week to be useful.`,
+      ? t(
+          `“${skillLabel(missing)}” is new for them. Ask how they would get up to speed, and how they learned the last new thing they picked up.`,
+          `“${skillLabel(missing)}” on hänelle uusi. Kysy, miten hän pääsisi vauhtiin ja miten hän oppi viimeksi jotain uutta.`,
+        )
+      : t('Ask what they need from your team in the first week to be useful.', 'Kysy, mitä hän tarvitsee tiimiltä ensimmäisellä viikolla.'),
   ]
   const participant = [
-    `Ask what “done” looks like for “${outcome}” and who decides.`,
-    `Ask who you would work with every day and how the team shares knowledge.`,
+    t(`Ask what “done” looks like for “${outcome}” and who decides.`, `Kysy, miltä valmis näyttää tavoitteessa “${outcome}” ja kuka sen päättää.`),
+    t('Ask who you would work with every day and how the team shares knowledge.', 'Kysy, kenen kanssa työskentelisit päivittäin ja miten tiimi jakaa tietoa.'),
     p.finnish < 2 && card.requirements.finnish < 2
-      ? `Agree on the working language and what support for learning Finnish looks like (your Finnish: ${LEVEL[p.finnish]}).`
-      : `Ask what the first month looks like, week by week.`,
+      ? t(
+          `Agree on the working language and what support for learning Finnish looks like (your Finnish: ${levelLabel(p.finnish).toLowerCase()}).`,
+          `Sopikaa työkielestä ja siitä, miten suomen oppimista tuetaan (suomesi: ${levelLabel(p.finnish).toLowerCase()}).`,
+        )
+      : t('Ask what the first month looks like, week by week.', 'Kysy, miltä ensimmäinen kuukausi näyttää viikko viikolta.'),
   ]
   return { company, participant }
 }

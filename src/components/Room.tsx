@@ -2,6 +2,7 @@ import type React from 'react'
 import { skillLabel } from '../data/skills'
 import type { Status } from '../engine/match'
 import type { RequirementKey } from '../engine/types'
+import { t } from '../i18n'
 
 interface Props {
   statuses: Status[]
@@ -13,23 +14,24 @@ interface Props {
   idle?: boolean
 }
 
-const REQ_LABEL: Record<string, string> = {
-  finnish: 'Finnish level',
-  english: 'English level',
-  swedish: 'Swedish level',
-  degree: 'Degree',
-  minYears: 'Years of experience',
-  livesInFinland: 'Must live in Finland',
-  noPermitNeeded: 'No permit needed',
-}
-const reqLabel = (k: string) => REQ_LABEL[k] ?? skillLabel(k.replace('must:', ''))
+const reqLabel = (k: string): string =>
+  ({
+    finnish: t('Finnish level', 'Suomen taso'),
+    english: t('English level', 'Englannin taso'),
+    swedish: t('Swedish level', 'Ruotsin taso'),
+    degree: t('Degree', 'Tutkinto'),
+    minYears: t('Years of experience', 'Kokemusvuodet'),
+    livesInFinland: t('Must live in Finland', 'Asuttava Suomessa'),
+    noPermitNeeded: t('No permit needed', 'Ei lupatarvetta'),
+  })[k] ?? skillLabel(k.replace('must:', ''))
 
-const LABEL: Record<Status, string> = {
-  strong: 'Has every must-have skill',
-  close: 'Close: related skills',
-  blocked: 'Kept out by a requirement',
-  none: 'Other participants',
-}
+const statusLabel = (s: Status): string =>
+  ({
+    strong: t('Has every must-have skill', 'Kaikki pakolliset taidot'),
+    close: t('Close: related skills', 'Lähellä: lähitaidot'),
+    blocked: t('Kept out by a requirement', 'Vaatimus sulkee ulos'),
+    none: t('Other participants', 'Muut osallistujat'),
+  })[s]
 
 export function Room({ statuses, preview, blockers, idle }: Props) {
   const counts = { strong: 0, close: 0, blocked: 0, none: 0 }
@@ -40,14 +42,16 @@ export function Room({ statuses, preview, blockers, idle }: Props) {
 
   if (idle) {
     return (
-      <section className="room room-idle" aria-label="Registered participants">
+      <section className="room room-idle" aria-label={t('Registered participants', 'Ilmoittautuneet osallistujat')}>
         <div className="room-head">
           <p className="room-reach">
             <span className="reach-number">{statuses.length}</span>
           </p>
           <p className="room-caption">
-            professionals have registered so far. When your card is ready, you see how many of them fit it: counts,
-            never profiles.
+            {t(
+              'professionals have registered so far. When your card is ready, you see how many of them fit it: counts, never profiles.',
+              'ammattilaista on ilmoittautunut. Kun korttisi on valmis, näet heti, moniko heistä sopii siihen: lukumäärät, ei koskaan profiileja.',
+            )}
           </p>
         </div>
         <div className="dots" aria-hidden>
@@ -60,20 +64,27 @@ export function Room({ statuses, preview, blockers, idle }: Props) {
   }
 
   return (
-    <section className="room" aria-label="Event participants your card reaches">
+    <section className="room" aria-label={t('Event participants your card reaches', 'Osallistujat, jotka korttisi tavoittaa')}>
       <div className="room-head">
         <p className="room-reach">
           <span className="reach-number">{reach}</span>
-          {previewReach !== null && previewReach !== reach && (
-            <span className="reach-preview"> → {previewReach}</span>
-          )}
+          {previewReach !== null && previewReach !== reach && <span className="reach-preview"> → {previewReach}</span>}
         </p>
         <p className="room-caption">
-          of {statuses.length} registered participants fit your card. Each dot is one anonymous person; you see
-          counts, never profiles.
+          {t(
+            `of ${statuses.length} registered participants fit your card. Each dot is one anonymous person; you see counts, never profiles.`,
+            `${statuses.length} ilmoittautuneesta sopii korttiisi. Jokainen piste on yksi nimetön ihminen; näet lukumäärät, et profiileja.`,
+          )}
         </p>
       </div>
-      <div className="dots" role="img" aria-label={`${counts.strong} strong, ${counts.close} close, ${counts.blocked} kept out by requirements`}>
+      <div
+        className="dots"
+        role="img"
+        aria-label={t(
+          `${counts.strong} strong, ${counts.close} close, ${counts.blocked} kept out by requirements`,
+          `${counts.strong} vahvaa, ${counts.close} lähellä, ${counts.blocked} vaatimusten ulos sulkemaa`,
+        )}
+      >
         {statuses.map((s, i) => {
           const next = preview?.[i]
           const changing = next && next !== s
@@ -90,14 +101,14 @@ export function Room({ statuses, preview, blockers, idle }: Props) {
         {(['strong', 'close', 'blocked'] as Status[]).map((s) => (
           <li key={s}>
             <span className={`dot dot-${s}`} aria-hidden />
-            <span className="legend-label">{LABEL[s]}</span>
+            <span className="legend-label">{statusLabel(s)}</span>
             <span className="legend-count">{counts[s]}</span>
           </li>
         ))}
       </ul>
       {blockerList.length > 0 && (
         <p className="blockers">
-          Kept out by a single requirement:{' '}
+          {t('Kept out by a single requirement:', 'Yksittäinen vaatimus sulkee ulos:')}{' '}
           {blockerList.map(([k, n], i) => (
             <span key={k}>
               {i > 0 && ', '}

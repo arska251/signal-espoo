@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
 import { POOL } from '../data/pool'
-import { SKILLS, skillLabel, type SkillGroup } from '../data/skills'
+import { SKILLS, groupLabel, skillLabel, type SkillGroup } from '../data/skills'
 import type { FlagText } from '../engine/draft'
 import { findFlags, gain, relax } from '../engine/flags'
 import { summarize, type Status } from '../engine/match'
-import { DEGREES, LANG_LEVELS, type ChallengeCard, type LangLevel, type RequirementKey } from '../engine/types'
+import { DEGREES, LANG_LEVELS, degreeLabel, levelLabel, workModeLabel, type ChallengeCard, type LangLevel, type RequirementKey } from '../engine/types'
 import { Room } from './Room'
+import { t } from '../i18n'
 
 interface Props {
   card: ChallengeCard
@@ -34,7 +35,7 @@ function Levels({ value, onChange, label }: { value: LangLevel; onChange: (v: La
             className={value === l.value ? 'on' : ''}
             onClick={() => onChange(l.value)}
           >
-            {l.label}
+            {levelLabel(l.value)}
           </button>
         ))}
       </div>
@@ -55,47 +56,47 @@ function Skills({ card, onCard }: { card: ChallengeCard; onCard: (c: ChallengeCa
     <ul className={`skills skills-${kind}`}>
       {ids.map((id) => (
         <li key={id} className="skill">
-          <button type="button" className="skill-move" onClick={() => toggle(id)} title={kind === 'must' ? 'Move to nice-to-have' : 'Move to must-have'}>
+          <button type="button" className="skill-move" onClick={() => toggle(id)} title={kind === 'must' ? t('Move to nice-to-have', 'Siirrä opittaviin') : t('Move to must-have', 'Siirrä pakollisiin')}>
             {skillLabel(id)}
           </button>
-          <button type="button" className="skill-x" onClick={() => remove(id)} aria-label={`Remove ${skillLabel(id)}`}>
+          <button type="button" className="skill-x" onClick={() => remove(id)} aria-label={t(`Remove ${skillLabel(id)}`, `Poista ${skillLabel(id)}`)}>
             ×
           </button>
         </li>
       ))}
-      {ids.length === 0 && <li className="empty">None yet</li>}
+      {ids.length === 0 && <li className="empty">{t('None yet', 'Ei vielä yhtään')}</li>}
     </ul>
   )
 
   return (
     <div className="skill-cols">
       <div>
-        <h3>Must have from day one</h3>
+        <h3>{t('Must have from day one', 'Pakollinen ensimmäisestä päivästä')}</h3>
         {list(card.must, 'must')}
       </div>
       <div>
-        <h3>Nice to have, can be learned</h3>
+        <h3>{t('Nice to have, can be learned', 'Plussaa, voi oppia työssä')}</h3>
         {list(card.nice, 'nice')}
       </div>
       <label className="add-skill">
-        <span className="sr-only">Add a skill</span>
+        <span className="sr-only">{t('Add a skill', 'Lisää taito')}</span>
         <select
           value=""
           onChange={(e) => e.target.value && onCard({ ...card, nice: [...card.nice, e.target.value] })}
         >
-          <option value="">Add a skill…</option>
+          <option value="">{t('Add a skill…', 'Lisää taito…')}</option>
           {GROUPS.map((g) => (
-            <optgroup key={g} label={g}>
+            <optgroup key={g} label={groupLabel(g)}>
               {SKILLS.filter((s) => s.group === g && !used.has(s.id)).map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.label}
+                  {skillLabel(s.id)}
                 </option>
               ))}
             </optgroup>
           ))}
         </select>
       </label>
-      <p className="hint">Click a skill to move it between the lists. Skill names follow the EU ESCO classification.</p>
+      <p className="hint">{t('Click a skill to move it between the lists. Skill names follow the EU ESCO classification.', 'Napsauta taitoa siirtääksesi sen listalta toiselle. Taitojen nimet noudattavat EU:n ESCO-luokitusta.')}</p>
     </div>
   )
 }
@@ -119,17 +120,17 @@ export function Review({ card, onCard, justified, onJustified, flagText, source,
         <div className="card-sheet">
           <p className="card-company">
             {card.company}
-            <span className="source">{source === 'ai' ? 'Drafted by Claude from your answers' : 'Drafted offline from your answers'}</span>
+            <span className="source">{source === 'ai' ? t('Drafted by Claude from your answers', 'Clauden laatima vastaustesi pohjalta') : t('Drafted offline from your answers', 'Laadittu offline vastaustesi pohjalta')}</span>
           </p>
-          <input className="card-title" value={card.title} onChange={(e) => onCard({ ...card, title: e.target.value })} aria-label="Role title" />
+          <input className="card-title" value={card.title} onChange={(e) => onCard({ ...card, title: e.target.value })} aria-label={t('Role title', 'Roolin nimi')} />
 
           <label className="block">
-            <h3>The problem you are hiring for</h3>
+            <h3>{t('The problem you are hiring for', 'Ongelma, johon rekrytoit')}</h3>
             <textarea rows={3} value={card.problem} onChange={(e) => onCard({ ...card, problem: e.target.value })} />
           </label>
 
           <div className="block">
-            <h3>After three months, they have</h3>
+            <h3>{t('After three months, they have', 'Kolmen kuukauden päästä hän on')}</h3>
             <ol className="outcomes">
               {card.outcomes.map((o, i) => (
                 <li key={i}>
@@ -137,16 +138,16 @@ export function Review({ card, onCard, justified, onJustified, flagText, source,
                     rows={1}
                     value={o}
                     onChange={(e) => onCard({ ...card, outcomes: card.outcomes.map((x, j) => (j === i ? e.target.value : x)) })}
-                    aria-label={`Outcome ${i + 1}`}
+                    aria-label={t(`Outcome ${i + 1}`, `Tavoite ${i + 1}`)}
                   />
-                  <button type="button" className="skill-x" onClick={() => onCard({ ...card, outcomes: card.outcomes.filter((_, j) => j !== i) })} aria-label={`Remove outcome ${i + 1}`}>
+                  <button type="button" className="skill-x" onClick={() => onCard({ ...card, outcomes: card.outcomes.filter((_, j) => j !== i) })} aria-label={t(`Remove outcome ${i + 1}`, `Poista tavoite ${i + 1}`)}>
                     ×
                   </button>
                 </li>
               ))}
             </ol>
             <button type="button" className="link" onClick={() => onCard({ ...card, outcomes: [...card.outcomes, ''] })}>
-              Add an outcome
+              {t('Add an outcome', 'Lisää tavoite')}
             </button>
           </div>
 
@@ -155,42 +156,42 @@ export function Review({ card, onCard, justified, onJustified, flagText, source,
           </div>
 
           <div className="block">
-            <h3>Requirements</h3>
-            <Levels label="Finnish" value={r.finnish} onChange={(v) => setReq({ finnish: v })} />
-            <Levels label="English" value={r.english} onChange={(v) => setReq({ english: v })} />
-            <Levels label="Swedish" value={r.swedish} onChange={(v) => setReq({ swedish: v })} />
+            <h3>{t('Requirements', 'Vaatimukset')}</h3>
+            <Levels label={t('Finnish', 'Suomi')} value={r.finnish} onChange={(v) => setReq({ finnish: v })} />
+            <Levels label={t('English', 'Englanti')} value={r.english} onChange={(v) => setReq({ english: v })} />
+            <Levels label={t('Swedish', 'Ruotsi')} value={r.swedish} onChange={(v) => setReq({ swedish: v })} />
             <div className="req">
-              <span className="req-label">Education</span>
+              <span className="req-label">{t('Education', 'Koulutus')}</span>
               <select value={r.degree} onChange={(e) => setReq({ degree: e.target.value as typeof r.degree })}>
                 {DEGREES.map((d) => (
                   <option key={d.value} value={d.value}>
-                    {d.label}
+                    {degreeLabel(d.value)}
                   </option>
                 ))}
               </select>
             </div>
             <div className="req">
-              <span className="req-label">Experience</span>
+              <span className="req-label">{t('Experience', 'Kokemus')}</span>
               <label className="years">
-                at least
+                {t('at least', 'vähintään')}
                 <input type="number" min={0} max={20} value={r.minYears} onChange={(e) => setReq({ minYears: Math.max(0, Number(e.target.value)) })} />
-                years
+                {t('years', 'vuotta')}
               </label>
             </div>
             <label className="req check">
               <input type="checkbox" checked={r.livesInFinland} onChange={(e) => setReq({ livesInFinland: e.target.checked })} />
-              Must already live in Finland
+              {t('Must already live in Finland', 'Asuttava jo Suomessa')}
             </label>
             <label className="req check">
               <input type="checkbox" checked={r.noPermitNeeded} onChange={(e) => setReq({ noPermitNeeded: e.target.checked })} />
-              Must not need a residence permit
+              {t('Must not need a residence permit', 'Ei saa tarvita oleskelulupaa')}
             </label>
             <div className="req">
-              <span className="req-label">Work</span>
-              <div className="seg" role="radiogroup" aria-label="Work mode">
+              <span className="req-label">{t('Work', 'Työ')}</span>
+              <div className="seg" role="radiogroup" aria-label={t('Work mode', 'Työtapa')}>
                 {(['on-site', 'hybrid', 'remote'] as const).map((m) => (
                   <button key={m} type="button" role="radio" aria-checked={card.workMode === m} className={card.workMode === m ? 'on' : ''} onClick={() => onCard({ ...card, workMode: m })}>
-                    {m}
+                    {workModeLabel(m)}
                   </button>
                 ))}
               </div>
@@ -199,16 +200,18 @@ export function Review({ card, onCard, justified, onJustified, flagText, source,
         </div>
         <div className="actions">
           <button type="button" className="secondary" onClick={onBack}>
-            Back to your answers
+            {t('Back to your answers', 'Takaisin vastauksiin')}
           </button>
           <button type="button" className="primary" onClick={onPublish} disabled={card.must.length === 0}>
-            Publish to the event
+            {t('Publish to the event', 'Julkaise tapahtumaan')}
           </button>
         </div>
         {card.must.length === 0 && (
           <p className="hint">
-            Add at least one must-have skill under “Add a skill”, so the card can be matched. If the draft found none,
-            your answers may describe duties rather than the work: try naming what the person gets done.
+            {t(
+              'Add at least one must-have skill under “Add a skill”, so the card can be matched. If the draft found none, your answers may describe duties rather than the work: try naming what the person gets done.',
+              'Lisää vähintään yksi pakollinen taito kohdasta “Lisää taito”, jotta korttia voidaan verrata osallistujiin. Jos luonnoksesta ei löytynyt taitoja, vastauksesi saattavat kuvata tehtäviä eivätkä työtä: kerro, mitä henkilö saa aikaan.',
+            )}
           </p>
         )}
       </div>
@@ -216,24 +219,29 @@ export function Review({ card, onCard, justified, onJustified, flagText, source,
       <aside className="side-col">
         <Room statuses={summary.statuses} preview={preview} blockers={summary.soleBlockers} />
 
-        <section className="check" aria-label="Requirement check">
-          <h2>Requirement check</h2>
+        <section className="check" aria-label={t('Requirement check', 'Vaatimustarkistus')}>
+          <h2>{t('Requirement check', 'Vaatimustarkistus')}</h2>
           {flags.length === 0 ? (
             <p className="check-empty">
-              Nothing to look at again. Every requirement on your card is either light or has a reason you gave.
+              {t(
+                'Nothing to look at again. Every requirement on your card is either light or has a reason you gave.',
+                'Ei katsottavaa. Jokainen korttisi vaatimus on joko kevyt tai perusteltu.',
+              )}
             </p>
           ) : (
             <>
               <p className="check-intro">
-                {flags.length === 1 ? 'One requirement' : `${flags.length} requirements`} may keep capable people out.
+                {flags.length === 1
+                  ? t('One requirement may keep capable people out.', 'Yksi vaatimus voi sulkea osaavia ihmisiä ulos.')
+                  : t(`${flags.length} requirements may keep capable people out.`, `${flags.length} vaatimusta voi sulkea osaavia ihmisiä ulos.`)}
                 {reachAll > reachNow && (
                   <>
                     {' '}
-                    With all suggestions, your card would reach <strong>{reachAll}</strong> people instead of{' '}
-                    <strong>{reachNow}</strong>.
+                    {t('With all suggestions, your card would reach', 'Kaikilla ehdotuksilla korttisi tavoittaisi')} <strong>{reachAll}</strong>{' '}
+                    {t('people instead of', 'ihmistä, nyt')} <strong>{reachNow}</strong>.
                   </>
                 )}{' '}
-                You decide.
+                {t('You decide.', 'Sinä päätät.')}
               </p>
               <ul className="flags">
                 {flags.map((f) => {
@@ -243,7 +251,7 @@ export function Review({ card, onCard, justified, onJustified, flagText, source,
                     <li key={f.key} className="flag">
                       <div className="flag-top">
                         <h3>{f.title}</h3>
-                        <span className={`gain${g > 0 ? '' : ' gain-zero'}`}>{g > 0 ? `+${g} people` : 'no change alone'}</span>
+                        <span className={`gain${g > 0 ? '' : ' gain-zero'}`}>{g > 0 ? t(`+${g} people`, `+${g} ihmistä`) : t('no change alone', 'ei muutosta yksin')}</span>
                       </div>
                       <p>{text.reason}</p>
                       <p className="flag-q">{text.question}</p>
@@ -260,10 +268,10 @@ export function Review({ card, onCard, justified, onJustified, flagText, source,
                             onCard(relax(card, f.key))
                           }}
                         >
-                          Change to: {f.relaxTo}
+                          {t('Change to:', 'Muuta:')} {f.relaxTo}
                         </button>
                         <button type="button" className="link" onClick={() => onJustified([...justified, f.key])}>
-                          Keep it, it is needed
+                          {t('Keep it, it is needed', 'Pidä, se on tarpeen')}
                         </button>
                       </div>
                     </li>

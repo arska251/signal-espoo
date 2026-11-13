@@ -1,14 +1,16 @@
 import { useState } from 'react'
 import { EVENT } from '../data/event'
 import { POOL } from '../data/pool'
-import { SKILLS, type SkillGroup } from '../data/skills'
+import { SKILLS, groupLabel, type SkillGroup } from '../data/skills'
 import { reached, summarize } from '../engine/match'
 import type { ChallengeCard } from '../engine/types'
 import type { Decision, Interest } from '../engine/interests'
+import { daysBefore, t } from '../i18n'
 
 export interface PublishedCard {
   card: ChallengeCard
-  publishedAt: string
+  /** Days before the event the card was published. */
+  publishedAt: number
   /** The card as first drafted, before the requirement check. */
   original?: ChallengeCard
 }
@@ -18,7 +20,7 @@ function Change({ before, after, label }: { before: number; after: number; label
     <div className="change">
       <p className="change-num">
         {before} <span aria-hidden>→</span>
-        <span className="sr-only">to</span> <strong>{after}</strong>
+        <span className="sr-only">{t('to', '→')}</span> <strong>{after}</strong>
       </p>
       <p className="change-label">{label}</p>
     </div>
@@ -62,27 +64,29 @@ export function Organiser({ cards, interestsFor, decisions }: { cards: Published
     <div className="organiser">
       <header>
         <p className="event-line">
-          {EVENT.name}, {EVENT.date}. {EVENT.daysLeft} days to go.
+          {EVENT.name}, {EVENT.date}. {t(`${EVENT.daysLeft} days to go.`, `${EVENT.daysLeft} päivää jäljellä.`)}
         </p>
-        <h1>Organiser view</h1>
+        <h1>{t('Organiser view', 'Järjestäjän näkymä')}</h1>
         <p className="lede">
-          Which companies have said what they need, who fits, and who is still missing. Everything here is counts; no
-          one's profile is shown.
+          {t(
+            "Which companies have said what they need, who fits, and who is still missing. Everything here is counts; no one's profile is shown.",
+            'Mitkä yritykset ovat kertoneet tarpeensa, ketkä sopivat ja keitä vielä puuttuu. Kaikki on lukumääriä; kenenkään profiilia ei näytetä.',
+          )}
         </p>
       </header>
 
       <section>
-        <h2>Challenge cards</h2>
+        <h2>{t('Challenge cards', 'Haastekortit')}</h2>
         <table className="cards-table">
           <thead>
             <tr>
-              <th>Company</th>
-              <th>Role</th>
-              <th className="num">Fit</th>
-              <th className="num">Kept out by requirements</th>
-              <th className="num">Interested</th>
-              <th className="num">Meetings</th>
-              <th>Published</th>
+              <th>{t('Company', 'Yritys')}</th>
+              <th>{t('Role', 'Rooli')}</th>
+              <th className="num">{t('Fit', 'Sopii')}</th>
+              <th className="num">{t('Kept out by requirements', 'Vaatimukset sulkevat ulos')}</th>
+              <th className="num">{t('Interested', 'Kiinnostuneita')}</th>
+              <th className="num">{t('Meetings', 'Tapaamisia')}</th>
+              <th>{t('Published', 'Julkaistu')}</th>
             </tr>
           </thead>
           <tbody>
@@ -94,7 +98,7 @@ export function Organiser({ cards, interestsFor, decisions }: { cards: Published
                 <td className="num">{r.s.blocked > 0 ? r.s.blocked : '–'}</td>
                 <td className="num">{r.interested || '–'}</td>
                 <td className="num">{r.meetings || '–'}</td>
-                <td>{r.publishedAt}</td>
+                <td>{daysBefore(r.publishedAt)}</td>
               </tr>
             ))}
           </tbody>
@@ -102,58 +106,68 @@ export function Organiser({ cards, interestsFor, decisions }: { cards: Published
       </section>
 
       <section>
-        <h2>What the requirement check changed</h2>
+        <h2>{t('What the requirement check changed', 'Mitä vaatimustarkistus muutti')}</h2>
         <p className="hint">
-          Across all cards, people each card reaches as first drafted and as published. {changed === 1 ? 'One company' : `${changed} companies`} changed
-          requirements after the check; every change was the company's own decision.
+          {t(
+            `Across all cards, people each card reaches as first drafted and as published. ${changed === 1 ? 'One company' : `${changed} companies`} changed requirements after the check; every change was the company's own decision.`,
+            `Kaikki kortit yhteensä: ketkä kortti tavoitti ensimmäisenä luonnoksena ja julkaistuna. ${changed === 1 ? 'Yksi yritys' : `${changed} yritystä`} muutti vaatimuksia tarkistuksen jälkeen; jokainen muutos oli yrityksen oma päätös.`,
+          )}
         </p>
         <div className="changes">
-          <Change before={before.length} after={after.length} label="Reached in total" />
-          <Change before={english(before)} after={english(after)} label="Of them work in English, Finnish below working level" />
-          <Change before={permit(before)} after={permit(after)} label="Of them need a residence permit" />
+          <Change before={before.length} after={after.length} label={t('Reached in total', 'Tavoitettu yhteensä')} />
+          <Change before={english(before)} after={english(after)} label={t('Of them work in English, Finnish below working level', 'Heistä työskentelee englanniksi, suomi alle hyvän tason')} />
+          <Change before={permit(before)} after={permit(after)} label={t('Of them need a residence permit', 'Heistä tarvitsee oleskeluluvan')} />
         </div>
       </section>
 
       <div className="org-grid">
         <section>
-          <h2>Still waiting for a card</h2>
+          <h2>{t('Still waiting for a card', 'Kortti vielä puuttuu')}</h2>
           <p className="hint">
-            Companies that registered but have not described their need. A card takes five minutes, so a reminder
-            three weeks out is usually enough.
+            {t(
+              'Companies that registered but have not described their need. A card takes five minutes, so a reminder three weeks out is usually enough.',
+              'Yritykset, jotka ilmoittautuivat mutta eivät ole kuvanneet tarvettaan. Kortti vie viisi minuuttia, joten muistutus kolme viikkoa ennen yleensä riittää.',
+            )}
           </p>
           <ul className="waiting">
             {waiting.map((c) => (
               <li key={c}>
                 <span>{c}</span>
                 {reminded.includes(c) ? (
-                  <span className="muted">Reminder sent</span>
+                  <span className="muted">{t('Reminder sent', 'Muistutus lähetetty')}</span>
                 ) : (
                   <button type="button" className="link" onClick={() => setReminded([...reminded, c])}>
-                    Send reminder
+                    {t('Send reminder', 'Lähetä muistutus')}
                   </button>
                 )}
               </li>
             ))}
-            {waiting.length === 0 && <li className="muted">Every invited company has a card.</li>}
+            {waiting.length === 0 && <li className="muted">{t('Every invited company has a card.', 'Jokaisella kutsutulla yrityksellä on kortti.')}</li>}
           </ul>
         </section>
 
         <section>
-          <h2>Who is coming</h2>
+          <h2>{t('Who is coming', 'Ketä on tulossa')}</h2>
           <p className="hint">
-            Send this to companies you invite. It answers the question of whether the city's pool has people for them.
+            {t(
+              "Send this to companies you invite. It answers the question of whether the city's pool has people for them.",
+              'Lähetä tämä kutsumillesi yrityksille. Se vastaa kysymykseen, löytyykö kaupungin kautta heille sopivia ihmisiä.',
+            )}
           </p>
           <ul className="bars">
             {groups.map(([g, n]) => (
               <li key={g}>
-                <span className="bar-label">{g}</span>
+                <span className="bar-label">{groupLabel(g)}</span>
                 <span className="bar" style={{ width: `${(n / max) * 100}%` }} />
                 <span className="bar-num">{n}</span>
               </li>
             ))}
           </ul>
           <p className="hint">
-            {POOL.length} registered professionals. {enWorking} work in English, {fiWorking} in Finnish.
+            {t(
+              `${POOL.length} registered professionals. ${enWorking} work in English, ${fiWorking} in Finnish.`,
+              `${POOL.length} ilmoittautunutta ammattilaista. ${enWorking} työskentelee englanniksi, ${fiWorking} suomeksi.`,
+            )}
           </p>
         </section>
       </div>

@@ -3,6 +3,7 @@
 // The company decides. Nothing is relaxed automatically.
 import { POOL } from '../data/pool'
 import { skillLabel } from '../data/skills'
+import { getLang, t } from '../i18n'
 import { reach } from './match'
 import type { ChallengeCard, Flag, RequirementKey } from './types'
 
@@ -28,7 +29,7 @@ export function gain(card: ChallengeCard, key: RequirementKey): number {
   return reach(POOL, relax(card, key)) - reach(POOL, card)
 }
 
-const TEMPLATES: Record<string, Omit<Flag, 'key'>> = {
+const TEMPLATES_EN: Record<string, Omit<Flag, 'key'>> = {
   finnish: {
     title: 'Fluent Finnish from day one',
     reason: 'None of the outcomes you described depend on Finnish. Many international professionals reach working Finnish within a year in the job.',
@@ -73,6 +74,53 @@ const TEMPLATES: Record<string, Omit<Flag, 'key'>> = {
   },
 }
 
+const TEMPLATES_FI: Record<string, Omit<Flag, 'key'>> = {
+  finnish: {
+    title: 'Sujuva suomi ensimmäisestä päivästä',
+    reason: 'Mikään kuvaamistasi tavoitteista ei vaadi suomea. Moni kansainvälinen osaaja oppii työssä hyvän suomen vuodessa.',
+    question: 'Mitkä ensimmäisten kolmen kuukauden tehtävät vaativat suomea? Voisiko alussa toimia englanniksi ja suomen kurssi rinnalla?',
+    relaxTo: 'Ei vaadita aloittaessa',
+  },
+  swedish: {
+    title: 'Ruotsin kieli vaaditaan',
+    reason: 'Kuvauksessasi ei mainita ruotsinkielisiä asiakkaita tai kollegoita.',
+    question: 'Kenen kanssa tämä henkilö puhuisi ruotsia?',
+    relaxTo: 'Ei vaadita',
+  },
+  english: {
+    title: 'Korkea englannin taso',
+    reason: 'Tiukka kielitaso rajaa pois ihmisiä, jotka osaisivat tehdä työn hyvin.',
+    question: 'Riittääkö päivittäiseen työhön kirjallinen englanti?',
+    relaxTo: 'Perustaso',
+  },
+  degree: {
+    title: 'Tutkinto vaaditaan',
+    reason: 'Tutkinto kertoo vähän listaamistasi tavoitteista. Osaamiseen perustuva rekrytointi laajentaa joukkoa ja vähentää vinoumaa alanvaihtajia ja niitä kohtaan, joiden tutkintoa ei tunnisteta Suomessa.',
+    question: 'Sopisiko joku, joka on tehnyt tätä työtä ilman tutkintoa?',
+    relaxTo: 'Ei tutkintovaatimusta',
+  },
+  minYears: {
+    title: 'Vähimmäiskokemus vuosina',
+    reason: 'Vuodet mittaavat aikaa, eivät osaamista. Alaa tai maata vaihtaneilla on usein vähemmän virallisia vuosia.',
+    question: 'Mitä henkilön pitäisi olla tehnyt aiemmin, sen sijaan että kuinka kauan?',
+    relaxTo: 'Vähintään 2 vuotta',
+  },
+  livesInFinland: {
+    title: 'Asuttava jo Suomessa',
+    reason: 'Business Espoo ja Work in Finland auttavat muutossa. Kansainväliset osaajat ovat osa tapahtuman osallistujia.',
+    question: 'Voisiko henkilö aloittaa etänä tai muuttaa muutamassa kuukaudessa?',
+    relaxTo: 'Muutto käy',
+  },
+  noPermitNeeded: {
+    title: 'Ei oleskelulupatarvetta',
+    reason: 'Erityisasiantuntija saa luvan nopeutetusti noin kahdessa viikossa, ja kaupunki voi opastaa prosessissa.',
+    question: 'Onko lupaprosessi oikea este vai tuntematon asia? Muuttaisiko kaupungin opastus vastaustasi?',
+    relaxTo: 'Lupa nopeutetusti käy',
+  },
+}
+
+const templates = () => (getLang() === 'fi' ? TEMPLATES_FI : TEMPLATES_EN)
+
 /** Rule-based check. Claude, when available, rewrites reasons and questions from the company's own words. */
 /** Whether a requirement is set at all, so relaxing it could change something. */
 function isSet(card: ChallengeCard, key: RequirementKey): boolean {
@@ -103,11 +151,11 @@ export function findFlags(card: ChallengeCard, justified: Set<RequirementKey> = 
   if (r.minYears >= 4) candidates.push('minYears')
   if (r.livesInFinland) candidates.push('livesInFinland')
   if (r.noPermitNeeded) candidates.push('noPermitNeeded')
-  for (const k of suggested) if (!candidates.includes(k) && k in TEMPLATES && isSet(card, k)) candidates.push(k)
+  for (const k of suggested) if (!candidates.includes(k) && k in templates() && isSet(card, k)) candidates.push(k)
 
   const flags: Flag[] = candidates
     .filter((k) => !justified.has(k))
-    .map((k) => ({ key: k, ...TEMPLATES[k] }))
+    .map((k) => ({ key: k, ...templates()[k] }))
 
   // Too many must-have skills: suggest moving the most limiting one to nice-to-have.
   if (card.must.length >= 4) {
@@ -119,10 +167,13 @@ export function findFlags(card: ChallengeCard, justified: Set<RequirementKey> = 
     if (best && best.g > 0) {
       flags.push({
         key: `must:${best.skill}`,
-        title: `${card.must.length} must-have skills`,
-        reason: `Few people have all ${card.must.length}. "${skillLabel(best.skill)}" narrows the pool the most.`,
-        question: `Could the new person learn "${skillLabel(best.skill)}" in the job?`,
-        relaxTo: 'Move to nice-to-have',
+        title: t(`${card.must.length} must-have skills`, `${card.must.length} pakollista taitoa`),
+        reason: t(
+          `Few people have all ${card.must.length}. "${skillLabel(best.skill)}" narrows the pool the most.`,
+          `Harvalla on kaikki ${card.must.length}. "${skillLabel(best.skill)}" rajaa joukkoa eniten.`,
+        ),
+        question: t(`Could the new person learn "${skillLabel(best.skill)}" in the job?`, `Voisiko uusi henkilö oppia "${skillLabel(best.skill)}" työssä?`),
+        relaxTo: t('Move to nice-to-have', 'Siirrä opittaviin'),
       })
     }
   }
