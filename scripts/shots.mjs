@@ -37,7 +37,7 @@ await page.goto(url, { waitUntil: 'networkidle0' })
 await new Promise((r) => setTimeout(r, 1800)) // let the room light up
 await tour('load')
 await shot('0-tour-intro')
-await clickText(L('Start the tour', 'Aloita kierros'))
+await clickText(process.env.NOTOUR ? L('Explore on my own', 'Tutustun itse') : L('Start the tour', 'Aloita kierros'))
 await tour('started')
 await shot('1-describe')
 await clickText(L('Logistics software company', 'Logistiikkaohjelmistoyritys'))
