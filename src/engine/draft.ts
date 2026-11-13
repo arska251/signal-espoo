@@ -17,6 +17,8 @@ export interface Draft {
 }
 
 export async function aiAvailable(): Promise<boolean> {
+  // The public static build has no server, so it does not ask.
+  if (import.meta.env.VITE_STATIC) return false
   try {
     const res = await fetch('./api/card')
     if (!res.ok) return false
