@@ -1777,3 +1777,8 @@ th {
     flex: none;
   }
 }
+/* Drafted text varies in length, so the card's text fields grow with it. */
+.block textarea {
+  field-sizing: content;
+  min-height: 3lh;
+}

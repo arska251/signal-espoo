@@ -18,6 +18,9 @@ function findSkills(text: string): string[] {
 
 function langLevel(text: string, names: string[]): LangLevel {
   const t = text.toLowerCase()
+  // "Finnish not needed", "no Finnish required", "suomea ei tarvita": an explicit no wins.
+  const no = /not (needed|required|necessary)|no need|isn'?t (needed|required)|ei (tarvita|vaadita|tarvitse)|ei ole välttämät/
+  if (names.some((n) => new RegExp(`${n}[^.,;]{0,20}(${no.source})|(${no.source})[^.,;]{0,20}${n}|\\bno ${n}`).test(t))) return 0
   const near = (re: RegExp) =>
     names.some((n) => new RegExp(`(${re.source})[^.,;]{0,25}${n}|${n}[^.,;]{0,25}(${re.source})`).test(t))
   if (near(/fluent|native|sujuva|äidinkiel|excellent|erinomai|c1|c2/)) return 3
@@ -42,7 +45,9 @@ export function extractLocal(a: CompanyAnswers): { card: ChallengeCard; justifie
     /\b(must|need|needs|needed|essential|required|require)\b|tarvi|pitää|välttämät|vaadi/i.test(s),
   )
   const mentioned = [...new Set([...findSkills(a.outcomes), ...findSkills(a.hard)])]
-  const must = essential.length ? [...new Set(essential.flatMap(findSkills))] : mentioned
+  const fromEssential = [...new Set(essential.flatMap(findSkills))]
+  // A requirement sentence without skills ("Fluent Finnish required.") must not hide the skills named elsewhere.
+  const must = fromEssential.length ? fromEssential : mentioned
   const nice = [...new Set([...mentioned, ...findSkills(a.setup)])].filter((s) => !must.includes(s))
 
   let degree: Requirements['degree'] = 'none'

@@ -102,3 +102,22 @@ test('outcome check: duties are flagged, results are not', () => {
   assert.ok(!outcomeChecks('Responsible for backend development and working with the team.')[0].ok)
   assert.ok(outcomeChecks('Moved the warehouse system to the cloud without stopping deliveries.').every((c) => c.ok))
 })
+
+test('an explicit "not needed" sets the language to zero', () => {
+  const { card: c } = extractLocal({ company: 'X', role: 'Y', outcomes: 'Design three levels.', hard: 'Must have shipped a game. English required, Finnish not needed.', setup: '' })
+  assert.equal(c.requirements.finnish, 0)
+  assert.ok(c.requirements.english >= 2)
+})
+
+test('a requirement sentence without skills does not hide the skills named elsewhere', () => {
+  const { card: c } = extractLocal({ company: 'X', role: 'Y', outcomes: 'Build the backend.', hard: 'Backend and SQL. Fluent Finnish required.', setup: '' })
+  assert.ok(c.must.includes('backend') && c.must.includes('sql'), JSON.stringify(c.must))
+})
+
+test('requirements Claude questioned are flagged too, unless justified', () => {
+  const { card: c } = scenario('logistics')
+  const card = { ...c, requirements: { ...c.requirements, minYears: 3 } }
+  assert.ok(!findFlags(card).some((f) => f.key === 'minYears'))
+  assert.ok(findFlags(card, new Set(), ['minYears']).some((f) => f.key === 'minYears'))
+  assert.ok(!findFlags(card, new Set(['minYears']), ['minYears']).some((f) => f.key === 'minYears'))
+})

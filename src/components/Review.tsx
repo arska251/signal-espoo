@@ -104,7 +104,8 @@ export function Review({ card, onCard, justified, onJustified, flagText, source,
   const [hover, setHover] = useState<RequirementKey | null>(null)
   const summary = useMemo(() => summarize(POOL, card), [card])
   const preview: Status[] | null = useMemo(() => (hover ? summarize(POOL, relax(card, hover)).statuses : null), [card, hover])
-  const flags = useMemo(() => findFlags(card, new Set(justified)), [card, justified])
+  const suggested = useMemo(() => Object.keys(flagText) as RequirementKey[], [flagText])
+  const flags = useMemo(() => findFlags(card, new Set(justified), suggested), [card, justified, suggested])
   const allRelaxed = useMemo(() => flags.reduce((c, f) => relax(c, f.key), card), [flags, card])
   const allSummary = useMemo(() => summarize(POOL, allRelaxed), [allRelaxed])
   const r = card.requirements
@@ -204,6 +205,12 @@ export function Review({ card, onCard, justified, onJustified, flagText, source,
             Publish to the event
           </button>
         </div>
+        {card.must.length === 0 && (
+          <p className="hint">
+            Add at least one must-have skill under “Add a skill”, so the card can be matched. If the draft found none,
+            your answers may describe duties rather than the work: try naming what the person gets done.
+          </p>
+        )}
       </div>
 
       <aside className="side-col">

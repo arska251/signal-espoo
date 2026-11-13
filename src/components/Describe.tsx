@@ -122,7 +122,7 @@ export function Describe({ answers, onChange, onSubmit, busy, ai }: Props) {
         ))}
         <div className="submit-row">
           <button className="primary" type="submit" disabled={!ready || busy}>
-            {busy ? 'Drafting your card…' : 'Draft my challenge card'}
+            {busy ? (ai ? 'Claude is drafting your card, about 10 seconds…' : 'Drafting your card…') : 'Draft my challenge card'}
           </button>
           <p className="hint">
             {ai

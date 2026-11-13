@@ -31,7 +31,7 @@ Most solutions start from the jobseeker's CV. Signal starts from the company, be
 ## What Signal does
 
 1. **Describe the work, not the job ad.** Three questions: what the new person has done after three months, what makes it hard and what they need, who they work with. Typing or dictation (in browsers that support it), in English or Finnish. About five minutes.
-2. **Challenge card.** A card is drafted from the answers (by Claude when an API key is configured; the public demo uses offline keyword rules): the real problem, the three-month outcomes, must-have and learnable skills mapped to the EU ESCO classification, and the requirements exactly as the company stated them. The company edits and approves every line.
+2. **Challenge card.** Claude drafts a card from the answers (tested on English and Finnish input, vague and very short answers, and an answer with an embedded instruction, which it ignored); the public demo, which has no API key, uses offline keyword rules: the real problem, the three-month outcomes, must-have and learnable skills mapped to the EU ESCO classification, and the requirements exactly as the company stated them. The company edits and approves every line.
 3. **The room.** 240 dots, one for each registered participant (synthetic data). They light up live as the card changes: mint for a fit, periwinkle for a fit through related skills, amber for people who have the skills but are kept out by a requirement. The company sees counts, never profiles.
 4. **Requirement check.** Signal flags requirements that keep capable people out without a stated reason, with a question back to the company and the number of people each change would add. Hovering a suggestion previews exactly which dots would change. The company decides; nothing changes automatically. When the company gave a real reason, for example Finnish for a nurse who talks with elderly residents every day, Signal respects it and does not flag it.
 5. **Participant view.** Participants see only the cards that fit them, with a plain reason ("You have SQL; Java is close to backend"). No CV to polish: to show interest they pick one of the company's outcomes and say, in two or three sentences and in any language, when they did something like it. The company reads that with the skills, without a name. Cards a person is kept out of by a requirement stay hidden, and the organisers see how many.
@@ -58,7 +58,7 @@ In the logistics example, the card as first written reaches **1** of 240 partici
 ## How it is built
 
 - React and TypeScript (Vite), one page, no backend database.
-- Claude Opus 5.5 through the Anthropic TypeScript SDK with structured outputs; the server-side call lives in `server/claude.ts`. The API key stays on the server. The public demo has no key and drafts with the offline extractor.
+- Claude Opus 5.5 through the Anthropic TypeScript SDK with structured outputs; the server-side call lives in `server/claude.ts`. The API key stays on the server. A card takes 4 to 11 seconds and a few cents. Claude's own questions about requirements are merged with the rule-based check, and requirements the company justified are never flagged. The public demo has no key and drafts with the offline extractor.
 - Skills taxonomy of 49 skills modelled on ESCO, with related skills for transferable matches.
 - 240 synthetic participants generated from a fixed seed, so every demo shows the same room.
 - A guided tour for anyone who opens the link alone: a bar at the bottom says what to do next and why it matters, and follows the visitor's own clicks.
@@ -68,7 +68,7 @@ In the logistics example, the card as first written reaches **1** of 240 partici
 
 Built end to end: company card, requirement check, participant view, company inbox, meetings with conversation questions, organiser view. Next:
 
-1. Test and tune the Claude drafting against real hiring managers' answers; today the public demo runs on the offline extractor.
+1. Tune the Claude drafting against real hiring managers' answers, and give the public demo a rate-limited server so visitors can try Claude too.
 2. A Finnish-language interface, and ESCO URIs from the ESCO API instead of our 49-skill subset.
 3. Claude writing the conversation questions from the actual answer, as it already does for the card.
 4. Feedback after each meeting from both sides, so organisers can show companies what the event led to.
@@ -77,7 +77,7 @@ Built end to end: company card, requirement check, participant view, company inb
 
 1. **The problem (20 s).** Companies come to Espoo's events late, with vague needs, and with requirements that quietly exclude the international talent in the room.
 2. **Describe (30 s).** Pick "Logistics software company". Read the three answers aloud: they sound normal. Click "Draft my challenge card".
-3. **The room (40 s).** The card reaches 1 of 240. Fourteen amber dots have the skills but are kept out by requirements.
+3. **The room (40 s).** The card reaches 1 of 240 (with Claude drafting live, the exact numbers differ a little from the offline demo). Fourteen amber dots have the skills but are kept out by requirements.
 4. **Requirement check (50 s).** Hover "Change to: Not required to start" on fluent Finnish: three dots light up. Point at "With all suggestions, your card would reach 32". Accept the changes one by one; the room lights up. Then show the care home example: Finnish is kept, because the company gave a reason.
 5. **Participant (30 s).** Publish, then "See it as a participant". The backend developer with basic Finnish now sees the card, with the reason it fits. They answer one outcome in two sentences instead of sending a polished CV.
 6. **Inbox (30 s).** Back to Company: fast forward a week. Five answers, unranked, no names. Click "Meet at the event" on the backend developer: 10:20, with three questions for each side. Switch to Participant: they see the time and their own questions.

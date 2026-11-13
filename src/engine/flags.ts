@@ -54,7 +54,7 @@ const TEMPLATES: Record<string, Omit<Flag, 'key'>> = {
     relaxTo: 'No degree required',
   },
   minYears: {
-    title: 'Many years of experience',
+    title: 'Minimum years of experience',
     reason: 'Years in a role measure time, not ability. People who changed careers or countries often have fewer formal years.',
     question: 'What should the person have done before, rather than for how long?',
     relaxTo: 'At least 2 years',
@@ -74,7 +74,26 @@ const TEMPLATES: Record<string, Omit<Flag, 'key'>> = {
 }
 
 /** Rule-based check. Claude, when available, rewrites reasons and questions from the company's own words. */
-export function findFlags(card: ChallengeCard, justified: Set<RequirementKey> = new Set()): Flag[] {
+/** Whether a requirement is set at all, so relaxing it could change something. */
+function isSet(card: ChallengeCard, key: RequirementKey): boolean {
+  const r = card.requirements
+  switch (key) {
+    case 'finnish': return r.finnish >= 1
+    case 'swedish': return r.swedish >= 1
+    case 'english': return r.english >= 3 // working English is a fair ask; only fluent is questioned
+    case 'degree': return r.degree !== 'none'
+    case 'minYears': return r.minYears > 2
+    case 'livesInFinland': return r.livesInFinland
+    case 'noPermitNeeded': return r.noPermitNeeded
+    default: return false
+  }
+}
+
+/**
+ * The rules find the usual suspects; `suggested` adds requirements Claude questioned from the company's own words
+ * (for example three years of experience for work that needs none). Justified requirements are never flagged.
+ */
+export function findFlags(card: ChallengeCard, justified: Set<RequirementKey> = new Set(), suggested: RequirementKey[] = []): Flag[] {
   const r = card.requirements
   const candidates: RequirementKey[] = []
   if (r.finnish >= 2) candidates.push('finnish')
@@ -84,6 +103,7 @@ export function findFlags(card: ChallengeCard, justified: Set<RequirementKey> = 
   if (r.minYears >= 4) candidates.push('minYears')
   if (r.livesInFinland) candidates.push('livesInFinland')
   if (r.noPermitNeeded) candidates.push('noPermitNeeded')
+  for (const k of suggested) if (!candidates.includes(k) && k in TEMPLATES && isSet(card, k)) candidates.push(k)
 
   const flags: Flag[] = candidates
     .filter((k) => !justified.has(k))
