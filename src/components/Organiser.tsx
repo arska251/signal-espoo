@@ -2,13 +2,27 @@ import { useState } from 'react'
 import { EVENT } from '../data/event'
 import { POOL } from '../data/pool'
 import { SKILLS, type SkillGroup } from '../data/skills'
-import { summarize } from '../engine/match'
+import { reached, summarize } from '../engine/match'
 import type { ChallengeCard } from '../engine/types'
 import type { Decision, Interest } from '../engine/interests'
 
 export interface PublishedCard {
   card: ChallengeCard
   publishedAt: string
+  /** The card as first drafted, before the requirement check. */
+  original?: ChallengeCard
+}
+
+function Change({ before, after, label }: { before: number; after: number; label: string }) {
+  return (
+    <div className="change">
+      <p className="change-num">
+        {before} <span aria-hidden>→</span>
+        <span className="sr-only">to</span> <strong>{after}</strong>
+      </p>
+      <p className="change-label">{label}</p>
+    </div>
+  )
 }
 
 const GROUP_OF = Object.fromEntries(SKILLS.map((s) => [s.id, s.group])) as Record<string, SkillGroup>
@@ -37,6 +51,11 @@ export function Organiser({ cards, interestsFor, decisions }: { cards: Published
   const fiWorking = POOL.filter((p) => p.finnish >= 2).length
   const enWorking = POOL.filter((p) => p.english >= 2).length
   const published = new Set(cards.map((c) => c.card.company))
+  const before = cards.flatMap((c) => reached(POOL, c.original ?? c.card))
+  const after = cards.flatMap((c) => reached(POOL, c.card))
+  const english = (ps: typeof POOL) => ps.filter((p) => p.finnish < 2).length
+  const permit = (ps: typeof POOL) => ps.filter((p) => p.needsPermit).length
+  const changed = cards.filter((c) => c.original && reached(POOL, c.original).length !== reached(POOL, c.card).length).length
   const waiting = INVITED.filter((c) => !published.has(c))
 
   return (
@@ -80,6 +99,19 @@ export function Organiser({ cards, interestsFor, decisions }: { cards: Published
             ))}
           </tbody>
         </table>
+      </section>
+
+      <section>
+        <h2>What the requirement check changed</h2>
+        <p className="hint">
+          Across all cards, people each card reaches as first drafted and as published. {changed === 1 ? 'One company' : `${changed} companies`} changed
+          requirements after the check; every change was the company's own decision.
+        </p>
+        <div className="changes">
+          <Change before={before.length} after={after.length} label="Reached in total" />
+          <Change before={english(before)} after={english(after)} label="Of them work in English, Finnish below working level" />
+          <Change before={permit(before)} after={permit(after)} label="Of them need a residence permit" />
+        </div>
       </section>
 
       <div className="org-grid">

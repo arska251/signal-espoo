@@ -54,7 +54,7 @@ const STEPS: Step[] = [
   },
   {
     text: 'On the logistics card, click “I am interested” and write two sentences about something similar you have done.',
-    why: 'No CV to polish with AI: a short, specific answer to the company’s own outcome, read without your name.',
+    why: 'No CV to polish with AI. The Signal check under the text coaches anyone toward a concrete, honest answer; generic filler shows up as noise, whoever wrote it.',
     done: (s) => s.interests > 0,
   },
   {
@@ -64,7 +64,7 @@ const STEPS: Step[] = [
   },
   {
     text: 'See the meeting from the participant’s side under “Participant”, then open “Organiser”.',
-    why: 'Organisers see cards, interest, meetings and which companies still have no card.',
+    why: 'Organisers see what the requirement check changed: how many more people the cards reach, and how many of them work in English.',
     done: (s) => s.view === 'organiser',
   },
   {

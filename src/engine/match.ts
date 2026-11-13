@@ -81,3 +81,11 @@ export function reach(pool: Participant[], card: ChallengeCard): number {
   const s = summarize(pool, card)
   return s.strong + s.close
 }
+
+/** The people a card reaches (strong or close). */
+export function reached(pool: Participant[], card: ChallengeCard): Participant[] {
+  return pool.filter((p) => {
+    const s = evaluate(p, card).status
+    return s === 'strong' || s === 'close'
+  })
+}

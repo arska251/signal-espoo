@@ -9,6 +9,14 @@ Junction 2026 submission for the City of Espoo challenge "Rethinking Recruitment
 
 A hiring manager answers three questions in their own words. Signal turns the answers into a challenge card, shows right away how many registered event participants fit it, and points out the requirements that keep capable people out.
 
+## Our answer to AI-generated noise
+
+We do not try to detect AI text: detectors are unreliable and penalise people writing in their second language. Instead Signal changes what is asked and helps everyone answer it well:
+
+- Companies describe **outcomes after three months**, not duties. Participants answer **one of those outcomes** in two or three sentences instead of sending a CV. A generic text has nothing to attach to.
+- The **Signal check** coaches every writer, company and participant alike, toward signal: a concrete detail, their own part, what changed, no filler. It works in English and Finnish, never blocks sending, never scores anyone, and the reader never sees it. Whoever or whatever wrote "passionate, results-driven team player", the check shows it as noise.
+- The answer is discussed face to face at the event, which is where a polished text meets the real person.
+
 ## The problem we picked
 
 Espoo listed the company side first, and so do we:
@@ -27,8 +35,8 @@ Most solutions start from the jobseeker's CV. Signal starts from the company, be
 3. **The room.** 240 dots, one for each registered participant (synthetic data). They light up live as the card changes: blue for a fit, light blue for a fit through related skills, amber for people who have the skills but are kept out by a requirement. The company sees counts, never profiles.
 4. **Requirement check.** Signal flags requirements that keep capable people out without a stated reason, with a question back to the company and the number of people each change would add. Hovering a suggestion previews exactly which dots would change. The company decides; nothing changes automatically. When the company gave a real reason, for example Finnish for a nurse who talks with elderly residents every day, Signal respects it and does not flag it.
 5. **Participant view.** Participants see only the cards that fit them, with a plain reason ("You have SQL; Java is close to backend"). No CV to polish: to show interest they pick one of the company's outcomes and say, in two or three sentences and in any language, when they did something like it. The company reads that with the skills, without a name. Cards a person is kept out of by a requirement stay hidden, and the organisers see how many.
-6. **Organiser view.** Every card with how many participants fit it, how many are kept out by requirements and how many are interested; the companies still without a card, with a reminder; and a "who is coming" summary to send to companies they are inviting.
-7. **Company inbox and meetings.** A week before the event the company reads the answers: the outcome each person picked, their own words, the card's skills they have, and only the facts the card asks about. Shown in the order they arrived; Signal ranks no one. "Meet at the event" books a 15-minute slot, and both sides get three conversation questions built from the card and the answer, so the meeting goes to the work, not small talk. The participant sees the time and their questions in their own view.
+6. **Organiser view.** Every card with fit, people kept out by requirements, interest and meetings; **what the requirement check changed** across all cards (in the demo: 31 → 68 people reached, of them working in English 6 → 15); the companies still without a card, with a reminder; and a "who is coming" summary to send to companies they are inviting.
+7. **Company inbox and meetings.** A week before the event the company reads the answers: the outcome each person picked, their own words, the card's skills they have, and only the facts the card asks about. Shown in the order they arrived; Signal ranks no one. "Meet at the event" books a 15-minute slot, and both sides get three conversation questions built from the card and the answer, so the meeting goes to the work, not small talk. The participant sees the time and their questions in their own view. When the person would need a residence permit, the meeting card tells the company about the specialist fast track and the city's International Working Life Services.
 
 In the logistics example, the card as first written reaches **1** of 240 participants. After the requirement check it reaches **33**, and the company decided each change. One of the people it now reaches is a backend developer who moved to Espoo last year and speaks basic Finnish: the card as first written would never have shown up for them.
 

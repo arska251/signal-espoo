@@ -98,6 +98,14 @@ export function Inbox({ card, interests, decisions, onDecide }: Props) {
                         <li key={q}>{q}</li>
                       ))}
                     </ul>
+                    {(i.participant.needsPermit || !i.participant.livesInFinland) && (
+                      <p className="intl-note">
+                        {i.participant.needsPermit ? 'This person would need a residence permit for work. ' : ''}
+                        {!i.participant.livesInFinland ? 'They live outside Finland today. ' : ''}
+                        Specialists can get a permit through the fast track in about two weeks, and the City of Espoo’s
+                        International Working Life Services can guide you through hiring and relocation. Ask the organisers at the event.
+                      </p>
+                    )}
                   </div>
                 </li>
               )

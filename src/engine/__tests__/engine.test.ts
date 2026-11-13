@@ -83,3 +83,22 @@ test('conversation brief gives three questions to each side', () => {
   assert.equal(b.company.length, 3)
   assert.equal(b.participant.length, 3)
 })
+
+import { answerChecks, outcomeChecks } from '../signalCheck'
+
+test('signal check: a specific answer passes, generic filler does not', () => {
+  const good = answerChecks('I moved our 12-year-old order system to AWS one module at a time, so customers never noticed the switch.')
+  assert.ok(good.every((c) => c.ok), JSON.stringify(good))
+  const vague = answerChecks('I am a passionate, results-driven team player with a proven track record in delivering value.')
+  assert.ok(vague.filter((c) => !c.ok).length >= 3, JSON.stringify(vague))
+})
+
+test('signal check works in Finnish', () => {
+  const fi = answerChecks('Siirsin vanhan laskutusjärjestelmän pilveen, jotta julkaisu nopeutui päivästä kymmeneen minuuttiin.')
+  assert.ok(fi.every((c) => c.ok), JSON.stringify(fi))
+})
+
+test('outcome check: duties are flagged, results are not', () => {
+  assert.ok(!outcomeChecks('Responsible for backend development and working with the team.')[0].ok)
+  assert.ok(outcomeChecks('Moved the warehouse system to the cloud without stopping deliveries.').every((c) => c.ok))
+})

@@ -25,6 +25,8 @@ const SEED: PublishedCard[] = SCENARIOS.filter((s) => s.id === 'care' || s.id ==
   card: extractLocal(s.answers).card,
   publishedAt: i === 0 ? '24 days before' : '19 days before',
 }))
+// The game studio accepted the check's degree suggestion before publishing.
+SEED[1] = { ...SEED[1], original: SEED[1].card, card: { ...SEED[1].card, requirements: { ...SEED[1].card.requirements, degree: 'none' } } }
 
 function loadCards(): PublishedCard[] {
   try {
@@ -49,6 +51,7 @@ export default function App() {
   const [tourStep, setTourStep] = useState(0)
   const [tourOpen, setTourOpen] = useState(true)
   const [initialReach, setInitialReach] = useState<number | null>(null)
+  const [original, setOriginal] = useState<ChallengeCard | null>(null)
   const currentReach = useMemo(() => (draft ? reach(POOL, draft.card) : null), [draft])
   const onTourStep = useCallback((n: number) => setTourStep(n), [])
   const tourState = useMemo(
@@ -92,6 +95,7 @@ export default function App() {
     const d = await draftCard(answers, ai)
     setDraft(d)
     setInitialReach(reach(POOL, d.card))
+    setOriginal(d.card)
     setPublished(false)
     setJustified(d.justified)
     setBusy(false)
@@ -100,7 +104,7 @@ export default function App() {
 
   const publish = () => {
     if (!draft) return
-    const entry = { card: draft.card, publishedAt: '21 days before' }
+    const entry: PublishedCard = { card: draft.card, publishedAt: '21 days before', original: original ?? draft.card }
     // Publishing the same company and role again replaces the earlier card.
     const own = [...cards.filter((c) => !SEED.includes(c) && cardKey(c.card) !== cardKey(draft.card)), entry]
     localStorage.setItem(STORE, JSON.stringify(own))

@@ -6,6 +6,8 @@ import { conversationBrief, slot, type Decision, type Interest } from '../engine
 import { evaluate } from '../engine/match'
 import type { ChallengeCard, Participant as P } from '../engine/types'
 import type { PublishedCard } from './Organiser'
+import { SignalCheck } from './SignalCheck'
+import { answerChecks } from '../engine/signalCheck'
 
 /** Plain-language reasons a card fits this person. */
 function why(p: P, card: ChallengeCard): string {
@@ -48,6 +50,7 @@ function InterestForm({ card, onSend }: { card: ChallengeCard; onSend: (outcome:
         {text.length}/{max}. Short and specific beats polished: the company reads this with your skills, without your
         name, and you talk about it face to face at the event.
       </p>
+      <SignalCheck checks={answerChecks(text)} empty={text.trim().length < 20} />
       <button className="primary" type="submit" disabled={text.trim().length < 40}>
         Send interest
       </button>

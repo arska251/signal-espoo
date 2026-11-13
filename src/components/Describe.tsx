@@ -4,6 +4,8 @@ import { POOL } from '../data/pool'
 import { SCENARIOS } from '../data/scenarios'
 import type { CompanyAnswers } from '../engine/types'
 import { Room } from './Room'
+import { SignalCheck } from './SignalCheck'
+import { outcomeChecks } from '../engine/signalCheck'
 
 interface Props {
   answers: CompanyAnswers
@@ -115,6 +117,7 @@ export function Describe({ answers, onChange, onSubmit, busy, ai }: Props) {
             </div>
             <textarea id={q.key} rows={q.rows} value={answers[q.key]} onChange={(e) => set(q.key, e.target.value)} />
             <p className="hint">{q.hint}</p>
+            {q.key === 'outcomes' && <SignalCheck checks={outcomeChecks(answers.outcomes)} empty={answers.outcomes.trim().length < 15} />}
           </div>
         ))}
         <div className="submit-row">
